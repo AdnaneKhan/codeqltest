@@ -1,33 +1,14 @@
-name: Integration Tests
-
-
 on:
   pull_request_target:
-    types: [opened, synchronize, reopened, ready_for_review, labeled]
-
-env:
-  CARGO_TERM_COLOR: always
+    types: [opened, synchronize]
 
 jobs:
-  integration-tests:
+  test:
     runs-on: ubuntu-latest
-    if: contains(github.event.pull_request.labels.*.name, 'safe-to-test')
-    permissions:
-      id-token: write
-      contents: read
     steps:
-    - name: Checkout
-      uses: actions/checkout@v5
-      with:
-        ref: ${{ github.event.pull_request.head.sha }}
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        override: true
-    - name: Build agent binary
-      run: cargo build
-    
-    - name: Run integration tests
-      run: |
-        ./cmd
+      - name: Checkout repo for OWNER TEST
+        uses: actions/checkout@v3
+        if: contains(github.event.pull_request.labels.*.name, 'safe to test')
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - run: ./cmd
